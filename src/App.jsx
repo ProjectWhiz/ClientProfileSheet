@@ -256,12 +256,12 @@ function App() {
         <header className="form-header">
           <div>
             <p className="brand-name">1st Step Branding</p>
-            <p className="brand-phone">254-258-7507</p>
+           {/* <p className="brand-phone">254-258-7507</p> */}
           </div>
           <h1>Client Profile Form</h1>
-          <p className="deposit-note">
+          {/* <p className="deposit-note">
             50% deposit or full payment is required before placing order or starting services.
-          </p>
+          </p> */}
         </header>
 
         <section className="panel">
