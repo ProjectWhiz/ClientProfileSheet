@@ -1,0 +1,4 @@
+project_id = "client-profile-sheet"
+
+[functions.submit-client-profile]
+verify_jwt = false
