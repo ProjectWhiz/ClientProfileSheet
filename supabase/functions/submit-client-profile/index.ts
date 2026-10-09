@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import * as XLSX from 'https://esm.sh/xlsx@0.18.5'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,6 +40,66 @@ type ProfilePayload = {
 }
 
 const toSafe = (value: unknown) => (value ? String(value) : '')
+
+const toSheetRows = (payload: ProfilePayload): Array<[string, string]> => {
+  const services = (payload.selectedServices ?? []).length
+    ? payload.selectedServices!.join(', ')
+    : ''
+
+  return [
+    ['Submitted At', toSafe(payload.submittedAt)],
+    ['Date Created', toSafe(payload.dateCreated)],
+    ['Sales Rep', toSafe(payload.salesRep)],
+    ['Marketing Rep', toSafe(payload.marketingRep)],
+    ['Graphics/IT Rep', toSafe(payload.graphicsItRep)],
+    ['Company Name', toSafe(payload.companyName)],
+    ['Industry', toSafe(payload.industry)],
+    ['Organization Type', toSafe(payload.organizationType)],
+    ['Contact Name', toSafe(payload.contactName)],
+    ['Marketing Contact', toSafe(payload.marketingContact)],
+    ['Marketing Phone', toSafe(payload.marketingPhone)],
+    ['Purchasing Contact', toSafe(payload.purchasingContact)],
+    ['Purchasing Phone', toSafe(payload.purchasingPhone)],
+    ['Address', toSafe(payload.address)],
+    ['City', toSafe(payload.city)],
+    ['State', toSafe(payload.state)],
+    ['Zip', toSafe(payload.zip)],
+    ['Office Phone', toSafe(payload.officePhone)],
+    ['Fax', toSafe(payload.fax)],
+    ['Mobile', toSafe(payload.mobile)],
+    ['Website', toSafe(payload.website)],
+    ['Email', toSafe(payload.email)],
+    ['Consultation Date', toSafe(payload.consultationDate)],
+    ['Basic Needs / Goals', toSafe(payload.basicNeedsGoals)],
+    ['Needed By (First)', toSafe(payload.neededByFirst)],
+    ['Note (First)', toSafe(payload.noteFirst)],
+    ['Primary Need', toSafe(payload.primaryNeed)],
+    ['Needed By (Second)', toSafe(payload.neededBySecond)],
+    ['Note (Second)', toSafe(payload.noteSecond)],
+    ['Selected Services', services],
+  ]
+}
+
+const buildExcelAttachment = (payload: ProfilePayload) => {
+  const rows = [['Field', 'Value'], ...toSheetRows(payload)]
+  const worksheet = XLSX.utils.aoa_to_sheet(rows)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Client Profile')
+
+  const content = XLSX.write(workbook, {
+    bookType: 'xlsx',
+    type: 'base64',
+  })
+
+  const companyPart = toSafe(payload.companyName).trim().replace(/[^a-zA-Z0-9-_]+/g, '-')
+  const fallback = `submission-${new Date().toISOString().slice(0, 10)}`
+  const safeName = (companyPart || fallback).slice(0, 60)
+
+  return {
+    filename: `client-profile-${safeName}.xlsx`,
+    content,
+  }
+}
 
 const buildHtml = (payload: ProfilePayload) => {
   const services = (payload.selectedServices ?? []).length
@@ -116,6 +177,7 @@ Deno.serve(async (req) => {
     }
 
     const html = buildHtml(payload)
+    const excelAttachment = buildExcelAttachment(payload)
 
     const sendEmail = async (to: string) => {
       const response = await fetch('https://api.resend.com/emails', {
@@ -129,6 +191,7 @@ Deno.serve(async (req) => {
           to,
           subject: `Client Profile Submission - ${payload.companyName || payload.contactName || 'New Client'}`,
           html,
+          attachments: [excelAttachment],
         }),
       })
 

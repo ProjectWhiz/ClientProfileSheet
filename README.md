@@ -5,6 +5,7 @@ This project is an interactive web version of your Client Profile Form.
 When an associate submits the form:
 - The full submission is saved to Supabase in `client_profile_submissions`.
 - An email copy is sent to your service inbox: `service@1ststepbranding.com`.
+- The email includes an `.xlsx` attachment with the submitted profile fields.
 
 ## Stack
 
@@ -171,3 +172,51 @@ To fully activate this in production, you need:
 - Resend verified sender email/domain
 
 Once those are added, the current code is ready to run.
+
+## 10) Master Workbook Manual Pull (URL + Storage)
+
+This project includes a second Edge Function that builds a master workbook from all submissions:
+
+- Function: `export-client-profiles-master`
+- Workbook output path: `exports/client-profiles-master.xlsx` (Supabase Storage)
+- Sheets included:
+  - `All Submissions` (all rows)
+  - one sheet per client (grouped by company/contact)
+
+### Deploy the export function
+
+```bash
+supabase functions deploy export-client-profiles-master
+```
+
+### Optional: protect URL access with a token
+
+Set a secret token once:
+
+```bash
+supabase secrets set EXPORT_ACCESS_TOKEN=YOUR_LONG_RANDOM_TOKEN
+```
+
+Redeploy after setting the token:
+
+```bash
+supabase functions deploy export-client-profiles-master
+```
+
+### Manual pull via URL (JSON response with signed download link)
+
+```text
+https://YOUR_PROJECT_REF.supabase.co/functions/v1/export-client-profiles-master?token=YOUR_LONG_RANDOM_TOKEN
+```
+
+### Direct download URL pull (HTTP redirect to signed file)
+
+```text
+https://YOUR_PROJECT_REF.supabase.co/functions/v1/export-client-profiles-master?download=1&token=YOUR_LONG_RANDOM_TOKEN
+```
+
+Notes:
+
+- Signed links expire automatically (default 30 minutes).
+- If `EXPORT_ACCESS_TOKEN` is not set, the endpoint is open to anyone with the URL.
+- Storage fallback always exists: you can download the latest workbook from the `exports` bucket in Supabase dashboard.
