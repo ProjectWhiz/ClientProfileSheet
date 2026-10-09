@@ -268,11 +268,11 @@ function App() {
           <h2>Customer Information</h2>
           <div className="grid three">
             <label>
-              Sales Rep#
+              Sales Rep / Sales Rep#
               <input name="salesRep" value={form.salesRep} onChange={handleFieldChange} />
             </label>
             <label>
-              Marketing Rep#
+              Marketing Rep /Marketing Rep#
               <input
                 name="marketingRep"
                 value={form.marketingRep}
@@ -280,7 +280,7 @@ function App() {
               />
             </label>
             <label>
-              Graphics/IT Rep#
+              Graphics-IT Rep /Graphics-IT Rep#
               <input
                 name="graphicsItRep"
                 value={form.graphicsItRep}

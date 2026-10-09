@@ -220,3 +220,10 @@ Notes:
 - Signed links expire automatically (default 30 minutes).
 - If `EXPORT_ACCESS_TOKEN` is not set, the endpoint is open to anyone with the URL.
 - Storage fallback always exists: you can download the latest workbook from the `exports` bucket in Supabase dashboard.
+
+
+Next Steps:
+Add functions to see the original form after the client has submitted
+add functions to check to make sure a follow-up email was sent within x amount of time
+add an organizational side ticket system for reps to work the clients (Service now, Remedy)
+add function to be able to upload files (people can send logos or other ideas)
